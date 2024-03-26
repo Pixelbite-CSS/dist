@@ -10,9 +10,9 @@
  - Use with your project by **CDN**
 ```
 // CSS
-https://cdn.jsdelivr.net/gh/pixelbite-css/dist/css/{version}/pixelbite.css
+https://cdn.jsdelivr.net/gh/pixelbite-css/dist/v/{version}/pixelbite.css
 // JS
-https://cdn.jsdelivr.net/gh/pixelbite-css/dist/js/{version}/pixelbite.js
+https://cdn.jsdelivr.net/gh/pixelbite-css/dist/v/{version}/pixelbite.js
 ```
 #### Legal actions
  - Please, before using or cloning this project, read our [License Terms](https://github.com/Pixelbite-CSS/dist/blob/main/LICENSE).
