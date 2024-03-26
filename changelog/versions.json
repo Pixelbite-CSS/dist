@@ -1,0 +1,56 @@
+[
+  {
+    "version": "1.6-min",
+    "text": "Config/Themes support, FontAwesome implementation (minified)",
+    "css": "v/1.6/pixelbite.min.css",
+    "js": "v/1.6/pixelbite.min.js"
+  },
+  {
+    "version": "1.6",
+    "text": "Config/Themes support, FontAwesome implementation",
+    "css": "v/1.6/pixelbite.css",
+    "js": "v/1.6/pixelbite.js"
+  },
+  {
+    "version": "1.5.2-min",
+    "text": "Components support + Github Markdown (minified)",
+    "css": "v/1.5.2/pixelbite.min.css",
+    "js": "v/1.5.2/pixelbite.min.js"
+  },
+  {
+    "version": "1.5.2",
+    "text": "Components support + Github Markdown",
+    "css": "v/1.5.2/pixelbite.css",
+    "js": "v/1.5.2/pixelbite.js"
+  },
+  {
+    "version": "1.5-min",
+    "text": "Components support (minified)",
+    "css": "v/1.5/pixelbite.min.css",
+    "js": "v/1.5/pixelbite.min.js"
+  },
+  {
+    "version": "1.5",
+    "text": "Components support",
+    "css": "v/1.5/pixelbite.css",
+    "js": "v/1.5/pixelbite.js"
+  },
+  {
+    "version": "1.4.2-min",
+    "text": "First public version (minified)",
+    "css": "v/1.4.2/pixelbite.min.css",
+    "js": "v/1.4.2/pixelbite.min.js"
+  },
+  {
+    "version": "1.4.2",
+    "text": "First public version",
+    "css": "v/1.4.2/pixelbite.css",
+    "js": "v/1.4.2/pixelbite.js"
+  },
+  {
+    "version": "Latest (Experimental)",
+    "text": "Always the newest version, can contain bugs and experimental features",
+    "css": "experimental/pixelbite.css",
+    "js": "experimental/pixelbite.js"
+  }
+]
