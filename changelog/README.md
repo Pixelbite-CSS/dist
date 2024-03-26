@@ -1,22 +1,22 @@
 ![image](https://raw.githubusercontent.com/Pixelbite-CSS/.github/main/banner-yellow.png)
 
-### v.1.4.2
+### v1.4.2
 - Began public development
 - Added base js main loop
 - Added base css
 
-### v.1.5
+### v1.5
 - Upgraded main js loop
 - Added custom font support
 - Added components support
 - Reformatted pixelbite object structure
 - Changed base css
 
-### v.1.5.2
+### v1.5.2
 - Added components GitHub markdown support
 - Changed base css
 
-### v.1.6
+### v1.6
 - Made library more (doesn't use pixelbite.update anymore)
 - Fixed Component error popup
 - Fixed Darkmode and changeTheme()
