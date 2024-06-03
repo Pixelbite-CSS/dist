@@ -103,9 +103,9 @@ var pixelbite = {
         "A falsis, diatria emeritis clabulare.",
         "Medicinas sunt menss de pius nuclear vexatum iacere.",
         "Verpas sunt plasmators de brevis pes.",
-        "Placidus, alter nuclear vexatum iaceres patienter talem de nobilis, noster cursus.",
+        "Placidus, alter nuclear vexatum iacere.",
         "Ubi est azureus castor?",
-        "Cum abnoba resistere, omnes hilotaees examinare pius, emeritis poetaes.",
+        "Cum abnoba resistere, examinare emeritis poetaes.",
         "Ubi est bi-color lanista?",
         "Stellas prarere in ostravia!",
         "Ausus peregrinationess, tanquam talis mensa.",
@@ -124,7 +124,7 @@ var pixelbite = {
         "Rumors cantare!",
         "Decors volare!",
         "Fluctuss peregrinationes!",
-        "Cum agripeta credere, omnes silvaes transferre domesticus, clemens sectames.",
+        "Cum agripeta credere, clemens sectames.",
         "Lapsus de domesticus era, manifestum lanista!",
         "Cur clabulare ridetis?",
         "Nam quis nulla.",
@@ -133,29 +133,29 @@ var pixelbite = {
         "Primus seculas ducunt ad orgia.",
         "Pol, a bene guttus, magnum glos!",
         "Ortum satis ducunt ad fortis candidatus.",
-        "Neuter, alter fraticinidas unus attrahendam de teres, fortis rumor.",
+        "Neuter, unus attrahendam de teres, fortis rumor.",
         "Devatios ortum!",
         "Cadunt saepe ducunt ad primus imber.",
         "Ubi est camerarius species?",
         "Vae.",
         "Genetrixs sunt adiurators de nobilis exemplar.",
         "Nullam rhoncus aliquam metus.",
-        "Fusce dui leo, imperdiet in, aliquam sit amet, feugiat eu, orci.",
-        "Curabitur ligula sapien, pulvinar a vestibulum quis, facilisis vel sapien.",
-        "In laoreet, magna id viverra tincidunt, sem odio bibendum justo, vel imperdiet sapien wisi sed libero.",
+        "Fusce dui leo, imperdiet in, feugiat eu, orci.",
+        "Curabitur ligula vestibulum quis, facilisis vel sapien.",
+        "In laoreet, magna id vel imperdiet sapien wisi sed libero.",
         "Mauris suscipit.",
         "Etiam sapien elit, consequat eget.",
         "Etiam neque.",
-        "Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?",
+        "Quis autem vel eum, fugiat quo voluptas nulla pariatur?",
         "Integer in sapien.",
-        "Nulla accumsan, elit sit amet varius semper, nulla mauris mollis quam, tempor suscipit diam nulla vel leo.",
+        "Nulla accumsan, elit diam nulla vel leo.",
         "Sed elit dui, pellentesque a, faucibus vel, interdum nec, diam.",
         "Duis condimentum augue id magna semper rutrum.",
-        "Nullam lectus justo, vulputate eget mollis sed, tempor sed magna.",
-        "Jsi cool člověk.",
+        "Nullam lectus justo, vulputate eget mollis sed, tempor magna.",
+        "Merci po poo.",
         "Fusce aliquam vestibulum ipsum.",
         "Aliquam erat volutpat.",
-        "Curabitur ligula sapien, pulvinar a vestibulum quis, facilisis vel sapien.",
+        "Curabitur ligula sapien, vel sapien.",
     ],
     markdowns: {
         github: [
@@ -248,7 +248,12 @@ const pb_customComponentsCheck = (array, relativePath) => {
         let element = array[i]
         if (element.tagName.toUpperCase().includes('COMPONENT')) {
             let element_attributes = element.getAttributeNames()
-            let path = pb_alocatePath(element.getAttribute('path'))
+            let path = ""
+            if(!element.getAttribute('path')) {
+                path = "error"
+            } else {
+                path = pb_alocatePath(element.getAttribute('path'))
+            }
             if (path.startsWith('http://') || path.startsWith('https://')) {
                 path = element.getAttribute('path')
             } else {
@@ -305,6 +310,58 @@ const pb_componentErrorMessage = (element, attributes, message) => {
         '</div>'
 }
 
+const pb_componentErrorMessageNew = (element, attributes, message) => {
+    let toggleClass = 'toggle-' + pb_randomString(24)
+    let detailsString = 'Attributes:<br>';
+    for (let i = 0; i < attributes.length; i++) {
+        detailsString += '- [' + attributes[i] + '="' + element.getAttribute(attributes[i]).replaceAll('<', '&lt;') + '"]<br>'
+    }
+    element.innerHTML =
+        '<div class="' + toggleClass + ' shadow-0-0-20px-rgba(0,0,0,.1) fw-500 flex flexCenter flexMiddle flexColumn p-24px br-10px bg-warning pos-relative">' +
+            '<i class="fa-solid fa-ghost fs-64px o-.4 mb-12px"></i>' +
+            '<div class="fs-24px fw-700 o-.4 ta-center">Ooops...</div>' +
+            '<div class="fs-14px fw-700 o-.4 ta-center">Component seems to be missing!</div>' +
+            '<div class="ta-left ff-monospace bg-black10 p-4px-8px br-6px c-white90 mt-18px">' + detailsString + '</div>' +
+            '<i class="fa-solid fa-circle-xmark pos-absolute right-12px top-12px pointer o-.8" onclick="toggleElement(\'' + toggleClass + '\')"></i>' +
+        '</div>'
+    // element.innerHTML =
+    //     '<div class="' + toggleClass + ' shadow-0-0-20px-rgba(0,0,0,.1) fw-500 flex flexCenter flexMiddle flexColumn p-24px br-10px bg-warning pos-relative">' +
+    //     '<i class="fa-solid fa-ghost fs-64px o-.4 mb-12px"></i>' +
+    //     '<div class="fs-24px fw-700 o-.4 ta-center">Ooops...</div>' +
+    //     '<div class="fs-14px fw-700 o-.4 ta-center">Component seems to be missing!</div>' +
+    //     '<div class="ta-left ff-monospace bg-black10 p-4px-8px br-6px c-white90 mt-18px">' + detailsString + '</div>' +
+    //     '<i class="fa-solid fa-circle-xmark pos-absolute right-12px top-12px pointer o-.8" onclick="toggleElement(\'' + toggleClass + '\')"></i>' +
+    //     '</div>'
+}
+
+const pb_evaluateSyntax = (string, element) => {
+    let pb_codeEvaluationString = string.replace(/\${`([\s\S]*?)`}/g, (match, code) => {
+        try {
+            let evaluatedCode = code;
+            if (code.startsWith('return ')) {
+                evaluatedCode = `(() => { ${code} })()`;
+            }
+            const result = new Function(evaluatedCode)();
+            return String(result);
+        } catch (error) {
+            console.error("PixelbiteCSS: " + error + "\n" + match);
+            let randomError = "errorToggler-" + pb_randomString(24)
+            let errorString = "<div class='" + randomError + " d-inline_block c-white bg-danger p-2px-6px br-60px fs-12px fw-400'>" + error + "<i onclick='toggleElement(\"" + randomError + "\")' class='c-rgba(0,0,0,.4) pointer ml-8px fa-solid fa-circle-xmark'></i></div>"
+            return errorString
+        }
+    });
+
+    const attributes = Array.from(element.attributes);
+    attributes.forEach(attribute => {
+        const attributeName = attribute.name;
+        const attributeValue = attribute.value;
+        const regex = new RegExp(`this\\.${attributeName}`, 'g');
+        pb_codeEvaluationString = pb_codeEvaluationString.replace(regex, attributeValue);
+    });
+
+    return pb_codeEvaluationString;
+}
+
 const pb_includeHtmlToAnElement = async (element, path, attributes) => {
     if (!path) path = 'null'
     let relativePathSplit = path.split('/')
@@ -312,13 +369,16 @@ const pb_includeHtmlToAnElement = async (element, path, attributes) => {
     for (let i = 0; i < relativePathSplit.length - 1; i++) {
         relativePath += relativePathSplit[i] + '/'
     }
+
     let componentRequest = new XMLHttpRequest();
     componentRequest.onreadystatechange = async function () {
         if (this.readyState === 4) {
             if (this.status === 200) {
                 let response = this.response.replaceAll('\t', '  ')
+                
                 for (let i = 0; i < attributes.length; i++) {
                     let attribute = attributes[i]
+
                     if (attribute.includes(':object')) {
                         let object = ''
                         let objectName = attribute.replace(':object', '')
@@ -348,6 +408,8 @@ const pb_includeHtmlToAnElement = async (element, path, attributes) => {
                             await pb_sleep(10)
                         }
                         const regex = /\$\{for\(([\s\S]*?)\)\}/g;
+
+                        // needs fix - only in if component uses :object parameter
                         const objectFors = response.match(regex);
                         if (objectFors) {
                             for (let j = 0; j < objectFors.length; j++) {
@@ -377,12 +439,41 @@ const pb_includeHtmlToAnElement = async (element, path, attributes) => {
                             }
                         }
                     }
+
+                    const componentFors = response.match(/\$\{for\(([\s\S]*?)\)\}/g);
+                    if (componentFors) {
+                        for (let j = 0; j < componentFors.length; j++) {
+                            if (componentFors[j].includes('${for(')) {
+                                let objectForSplit = componentFors[j].substring(6, componentFors[j].length - 2).split('::')
+                                let string = ''
+                                for (let k = 0; k < eval(objectForSplit[0]); k++) {
+                                    string += pb_replaceAll(objectForSplit[1], '[i]', '[' + k + ']')
+                                }
+                                response = pb_replaceAll(response, componentFors[j], string)
+                            }
+                        }
+                    }
+
                     let attribute_syntax = '${' + attributes[i] + '}'
                     if (response.includes(attribute_syntax)) {
                         // response = response.replace(attribute_syntax, element.getAttribute(attribute))
                         response = pb_replaceAll(response, attribute_syntax, element.getAttribute(attribute))
                         element.removeAttribute(attribute)
                     }
+
+                    response = response.replace(/\${random}/g, () => pb_randomString(24));
+
+                    let randomKeyMap = {};
+                    response = response.replace(/\${random\[(.*?)\]}/g, function(match, key) {
+                        if (!randomKeyMap[key]) {
+                            randomKeyMap[key] = pb_randomString(24);
+                        }
+                        return randomKeyMap[key];
+                    });
+
+                    response = response.replace(/\${random\((\d+(\.\d+)?),(\d+(\.\d+)?)\)}/g, (match, min, _, max) => {
+                        return pb_randomNumber(parseFloat(min), parseFloat(max)).toString();
+                    });
                     
                     const regex = /\${variables.(.*?)}/g;                
                     response = response.replace(regex, (match, variableName) => {
@@ -392,7 +483,11 @@ const pb_includeHtmlToAnElement = async (element, path, attributes) => {
                             return match;
                         }
                     });
+
                 }
+
+                response = pb_evaluateSyntax(response, element)
+
                 if (element.getAttribute('markdown')) {
                     response = pb_customMarkdown(response, element.getAttribute('markdown'))
                 }
@@ -402,7 +497,7 @@ const pb_includeHtmlToAnElement = async (element, path, attributes) => {
                 }
             }
             if (this.status === 404) {
-                pb_componentErrorMessage(element, attributes, 'Component not found [path=' + path + ']')
+                pb_componentErrorMessageNew(element, attributes, 'Component not found [path=' + path + ']')
             }
         }
         pb_classGenerator()
@@ -411,7 +506,7 @@ const pb_includeHtmlToAnElement = async (element, path, attributes) => {
         componentRequest.open("GET", path, true);
         componentRequest.send();
     } catch (err) {
-        console.error(err)
+        console.error("Pixelbite: " + err + "\n" + path)
     }
 }
 
@@ -458,7 +553,18 @@ const pb_alocatePath = (string) => {
 }
 
 const pb_configureConfigs = async (urls) => {
-    await pb_configEval(window.location.protocol + "//" + window.location.host + "/pixelbite.conf")
+    let localUrlSplit = window.location.href.split("/")
+    for (let i = 3; i < localUrlSplit.length; i++) {
+        let localUrl = ""
+        for (let j = 0; j < i; j++) {
+            localUrl += localUrlSplit[j] + "/"
+        }
+        localUrl += "pixelbite.conf"
+        await pb_configEval(localUrl)
+    }
+    // await pb_configEval(window.location.protocol + "//" + window.location.host + "/pixelbite.conf")
+    // var href = window.location.href;
+    // var dir = href.substring(0, href.lastIndexOf('/')) + "/";
     for (let j = 0; j < urls.length; j++) {
         await pb_configEval(urls[j])
     }
@@ -469,6 +575,23 @@ function pb_extractWordBeforeEquals(string) {
     const regex = /(\w+)\s*=/;
     const match = string.match(regex);
     return match ? match[1] : null;
+}
+
+function pb_removeAfterLastSlash(inputString) {
+    var lastSlashIndex = inputString.lastIndexOf('/');
+    if (lastSlashIndex !== -1) {
+        return inputString.substring(0, lastSlashIndex);
+    } else {
+        return inputString;
+    }
+}
+
+const pb_findInArray = (array, match) => {
+    for (let i = 0; i < array.length; i++) {
+        if(array[i] === match) return true
+        else return false        
+    }
+    return false
 }
 
 const pb_configEval = async (url) => {
@@ -485,6 +608,7 @@ const pb_configEval = async (url) => {
             markdowns: {}
         }
     }
+
     let text = (await fetchFile(url))
     if (text) {
         const lines = text
@@ -498,12 +622,12 @@ const pb_configEval = async (url) => {
         for (let i = 0; i < lines.length; i++) {
             let line = lines[i]
             if(line.match(/\[(\w+)\]/)) {
-                category = line.trim().replaceAll('[', '').replaceAll(']', '')
+              category = line.trim().replaceAll('[', '').replaceAll(']', '')
             } else {
                 let variable = pb_extractWordBeforeEquals(line)
                 let value = line.replace(/^\w+\s*=\s*/, '').trim().replace(/.*?@\/\s*/,'@/').replaceAll('@/', window.location.protocol + "//" + window.location.host + "/")
                 try {
-                    if(category === "informations") {
+                    if(category === "information" || category === "informations") {
                         eval('object.' + variable + ' = ' + value)
                     } else if (category === "general") {
                         eval('object.values.' + variable + ' = ' + value)
@@ -511,7 +635,8 @@ const pb_configEval = async (url) => {
                     } else if (category === "components") {
                         eval('object.values.' + category + '.' + variable + ' = ' + value)
                         if (!value.includes('http://') || !value.includes('https://')) {
-                            value = value.charAt(0) + window.location.protocol + "//" + window.location.host + "/" + value.slice(1)
+                            // value = value.charAt(0) + window.location.protocol + "//" + window.location.host + "/" + value.slice(1)
+                            value = value.charAt(0) + pb_removeAfterLastSlash(url) + "/" + value.slice(1)
                         }
                         eval('pixelbite.components.' + variable + ' = ' + value)
                     } else if (category === "aliases") {
@@ -528,7 +653,7 @@ const pb_configEval = async (url) => {
                         eval('pixelbite.colors.' + variable + ' = ' + value)
                     }
                  } catch (error) {
-                    console.error(error)
+                    console.error("Pixelbite: " + error + "\n" + text)
                  }
             }
         }
@@ -596,10 +721,11 @@ const fetchFile = async (url) => {
         res = text
     })
     .catch(error => {
-        if (url !== window.location.protocol + "//" + window.location.host + "/pixelbite.conf") {
+        if (!url.includes("pixelbite.conf")) {
             console.error('PixelBite: Cannot get response from "' + url + '"')
         }
     });
+
     return res
 }
 
@@ -658,6 +784,14 @@ function pb_randomString(length) {
         counter += 1;
     }
     return result;
+}
+
+function pb_randomNumber(min, max) {
+    if (Number.isInteger(min) && Number.isInteger(max)) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    } else {
+        return Math.random() * (max - min) + min;
+    }
 }
 
 const pb_randomFromArray = (array) => {
@@ -1050,45 +1184,74 @@ const pb_updateSearchbars = () => {
 
 let pb_dropdownsBefore = []
 
+// const pb_updateDropdowns = () => {
+//     let dropdowns = document.getElementsByClassName("dropdown");
+//     if(pb_dropdownsBefore.length !== dropdowns.length) {
+//         for (let i = 0; i < dropdowns.length; i++) {
+//             let divs = document.getElementsByTagName('div')
+//             let buttons = document.getElementsByTagName('button')
+//             for(let j = 0; j < divs.length; j++) {
+//                 divs[j].remove
+//             }
+//             for(let j = 0; j < buttons.length; j++) {
+//                 buttons[j].remove
+//             }
+//             let selects = dropdowns[i].getElementsByTagName('select')
+//             for(let j = 0; j < selects.length; j++) {
+//                 selects[j].style.display = "none";
+//             }
+//             let options = dropdowns[i].getElementsByTagName('select')[0].getElementsByTagName('option')
+//             let selectButton = document.createElement("button")
+//             let dropdownClassname = "toggle-" + pb_randomString(32)
+//             selectButton.onclick = () => toggleElement(dropdownClassname)
+//             selectButton.innerHTML = "<div class='flexRow flexSpaceBetween g-15px w-100%'><div>" + options[0].innerHTML + "</div><i class='fa-solid fa-caret-down'></i></div>"
+//             dropdowns[i].append(selectButton)
+//             dropdowns[i].value = options[0].value;
+//             let selectMenu = document.createElement("div")
+//             selectMenu.classList.add("hidden")
+//             selectMenu.classList.add(dropdownClassname)
+//             for(let k = 0; k < options.length; k++) {
+//                 let option = document.createElement("div")
+//                 option.value = options[k].value
+//                 option.innerHTML = options[k].innerHTML
+//                 option.onclick = () => {
+//                     dropdowns[i].value = options[k].value
+//                     dropdowns[i].getElementsByTagName('button')[0].innerHTML = "<div class='flexRow flexSpaceBetween g-15px w-100%'><div>" + options[k].innerHTML + "</div><i class='fa-solid fa-caret-down'></i></div>"
+//                     pb_classGenerator()
+//                     toggleElement(dropdownClassname)
+//                 }
+//                 selectMenu.append(option)
+//             }
+//             dropdowns[i].append(selectMenu)
+//         }
+//         pb_dropdownsBefore = dropdowns
+//     }
+// }
+
 const pb_updateDropdowns = () => {
     let dropdowns = document.getElementsByClassName("dropdown");
     if(pb_dropdownsBefore.length !== dropdowns.length) {
         for (let i = 0; i < dropdowns.length; i++) {
-            let divs = document.getElementsByTagName('div')
-            let buttons = document.getElementsByTagName('button')
-            for(let j = 0; j < divs.length; j++) {
-                divs[j].remove
-            }
-            for(let j = 0; j < buttons.length; j++) {
-                buttons[j].remove
-            }
-            let selects = dropdowns[i].getElementsByTagName('select')
-            for(let j = 0; j < selects.length; j++) {
-                selects[j].style.display = "none";
-            }
-            let options = dropdowns[i].getElementsByTagName('select')[0].getElementsByTagName('option')
-            let selectButton = document.createElement("button")
-            let dropdownClassname = "toggle-" + pb_randomString(32)
-            selectButton.onclick = () => toggleElement(dropdownClassname)
-            selectButton.innerHTML = "<div class='flexRow flexSpaceBetween g-15px w-100%'><div>" + options[0].innerHTML + "</div><i class='fa-solid fa-caret-down'></i></div>"
-            dropdowns[i].append(selectButton)
-            dropdowns[i].value = options[0].value;
-            let selectMenu = document.createElement("div")
-            selectMenu.classList.add("hidden")
-            selectMenu.classList.add(dropdownClassname)
-            for(let k = 0; k < options.length; k++) {
-                let option = document.createElement("div")
-                option.value = options[k].value
-                option.innerHTML = options[k].innerHTML
-                option.onclick = () => {
-                    dropdowns[i].value = options[k].value
-                    dropdowns[i].getElementsByTagName('button')[0].innerHTML = "<div class='flexRow flexSpaceBetween g-15px w-100%'><div>" + options[k].innerHTML + "</div><i class='fa-solid fa-caret-down'></i></div>"
-                    pb_classGenerator()
-                    toggleElement(dropdownClassname)
+            dropdownButton = dropdowns[i].getElementsByClassName('dropdown-button')[0]
+            dropdownContent = dropdowns[i].getElementsByClassName('dropdown-content')[0]
+            dropdownX = dropdowns[i].getElementsByClassName('dropdown-x')
+            dropdowns[i].classList.add("pos-relative")
+            if(dropdownButton && dropdownContent) {
+                let dropdownId = "dropdownElement-" + pb_randomString(24)
+                dropdownButton.classList.add("pos-relative")
+                dropdownContent.classList.add("pos-absolute")
+                dropdownContent.classList.add("top-100%")
+                dropdownContent.classList.add("maxW-none")
+                dropdownContent.classList.add(dropdownId)
+                dropdownButton.onclick = () => {    
+                    toggleElement(dropdownId)
                 }
-                selectMenu.append(option)
+                if(dropdownX) {
+                    for (let j = 0; j < dropdownX.length; j++) {                                
+                        dropdownX[j].onclick = () => {toggleElement(dropdownId)}   
+                    }
+                }
             }
-            dropdowns[i].append(selectMenu)
         }
         pb_dropdownsBefore = dropdowns
     }
