@@ -37,3 +37,6 @@
 - Added new features to configs 
     - Added nested variables - `${variables.[group].[child].[child]...}`
         - Using objects
+- Added better dropdowns
+- Updated css
+    - Added table support 
