@@ -33,7 +33,7 @@
 
 ### v1.7-alpha
 - Added code inside of an Component "using ${\`code\`}"
-    - `retur [variable]` returns result as a HTML or Text format
+    - `return [variable]` returns result as a HTML or Text format
 - Added new features to configs 
     - Added nested variables - `${variables.[group].[child].[child]...}`
         - Using objects
