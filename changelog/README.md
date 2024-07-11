@@ -39,4 +39,6 @@
         - Using objects
 - Added better dropdowns
 - Updated css
-    - Added table support 
+    - Added `<table>` support
+- Bugfix
+    - Components attributes are now case-insensitive 
