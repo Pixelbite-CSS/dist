@@ -39,6 +39,8 @@
         - Using objects
 - Added better dropdowns
 - Added `hover:` support
+- Added **full css** support
+    - Now you can add any CSS style by replacing "-" with "_" since the PixelbiteCSS uses bunch "-" as a class splitter 
 - Updated css
     - Added `<table>` support
 - Bugfix
