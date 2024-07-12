@@ -38,6 +38,7 @@
     - Added nested variables - `${variables.[group].[child].[child]...}`
         - Using objects
 - Added better dropdowns
+- Added `hover:` support
 - Updated css
     - Added `<table>` support
 - Bugfix
