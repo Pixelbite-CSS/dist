@@ -42,6 +42,14 @@
 - Added **full css** support
     - Now you can add any CSS style by replacing "-" with "_" since the PixelbiteCSS uses bunch "-" as a class splitter
 - Added `hidden = [true/false]` attribute to hide Config info
+- Added **hashed cookies**
+    - Now you can store cookies and variables safely across sites (`getCookie(key)`, `setCookie(key, value)`)
+    - Added new config variables - **[general]**
+      - `cookie` - hashed cookie object
+      - `cookie_encriptionkey` - password for encription *(need to change if using in private)*
+      - `cookie_saltkey` - password for 2nd degree encription
+      - `cookie_expiration` - expiration for cookies in days
+      - `cookie_values` - decripted hashed cookie object
 - Updated css
     - Added `<table>` support
 - Bugfix
