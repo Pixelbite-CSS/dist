@@ -44,4 +44,6 @@
 - Updated css
     - Added `<table>` support
 - Bugfix
-    - Components attributes are now case-insensitive 
+    - Components attributes are now case-insensitive
+    - Class generator inside of the main loop was fixed
+      - Faster load times and faster component load
