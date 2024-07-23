@@ -34,6 +34,7 @@
 ### v1.7-alpha
 - Added code inside of an Component "using ${\`code\`}"
     - `return [variable]` returns result as a HTML or Text format
+    - Now works without a Component needed - try in DOM
 - Added new features to configs 
     - Added nested variables - `${variables.[group].[child].[child]...}`
         - Using objects
