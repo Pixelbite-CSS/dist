@@ -50,6 +50,8 @@
       - `cookie_saltkey` - password for 2nd degree encription
       - `cookie_expiration` - expiration for cookies in days
       - `cookie_values` - decripted hashed cookie object
+  - Now hashed cookies use _specific key_ for **specific machine** and **browser**
+- Added `<button>` href support 
 - Updated css
     - Added `<table>` support
 - Bugfix
