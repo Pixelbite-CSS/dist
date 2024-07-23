@@ -51,7 +51,9 @@
       - `cookie_expiration` - expiration for cookies in days
       - `cookie_values` - decripted hashed cookie object
   - Now hashed cookies use _specific key_ for **specific machine** and **browser**
-- Added `<button>` href support 
+- Added `<button>` href support
+- Added `theme[theme]:` prefix support
+    - To change theme use `changeTheme(theme_name)`
 - Updated css
     - Added `<table>` support
 - Bugfix
