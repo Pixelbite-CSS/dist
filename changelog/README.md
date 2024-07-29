@@ -47,14 +47,23 @@
     - Now you can store cookies and variables safely across sites (`getCookie(key)`, `setCookie(key, value)`)
     - Added new config variables - **[general]**
       - `cookie` - hashed cookie object
-      - `cookie_encriptionkey` - password for encription *(need to change if using in private)*
-      - `cookie_saltkey` - password for 2nd degree encription
-      - `cookie_expiration` - expiration for cookies in days
-      - `cookie_values` - decripted hashed cookie object
+      - `cookie.encriptionkey` - password for encription *(need to change if using in private)*
+      - `cookie.saltkey` - password for 2nd degree encription
+      - `cookie.expiration` - expiration for cookies in days
+      - `cookie.values` - decripted hashed cookie object
   - Now hashed cookies use _specific key_ for **specific machine** and **browser**
 - Added `<button>` href support
 - Added `theme[theme]:` prefix support
     - To change theme use `changeTheme(theme_name)`
+- Updated configs
+    - Added new `[tags]` support
+        - Add classes to tags
+    - Added new `[general] scripts` support
+        - Add external scripts by using `scripts = [Array]` variable
+    - Added new `[general] hidden_configs`
+        - Set this variable to "true" to hide all configs/themes messages
+    - Added auto config fill
+        - If you are using externall configs/themes, the url will reffer to `*/config.conf` by default 
 - Updated css
     - Added `<table>` support
 - Bugfix
