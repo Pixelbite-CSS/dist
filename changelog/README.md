@@ -44,7 +44,7 @@
     - Now you can add any CSS style by replacing "-" with "_" since the PixelbiteCSS uses bunch "-" as a class splitter
 - Added `hidden = [true/false]` attribute to hide Config info
 - Added **hashed cookies**
-    - Now you can store cookies and variables safely across sites (`getCookie(key)`, `setCookie(key, value)`)
+    - Now you can store cookies and variables safely across sites (`getCookie(key)`/`getHook(key)`, `setCookie(key, value)`/`setHook(key, value)`)
     - Added new config variables - **[general]**
       - `cookie` - hashed cookie object
       - `cookie.encriptionkey` - password for encription *(need to change if using in private)*
