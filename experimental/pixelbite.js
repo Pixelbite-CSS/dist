@@ -228,11 +228,11 @@ var pixelbite = {
             {pattern: /^>\s+(.*)$/gm, replacement: "<blockquote>$1</blockquote>"},
             {
                 pattern: /```([\w-]+)?\n([\s\S]*?)\n```/gm,
-                replacement: '<pre class=\"numberedLines maxw-100% b-1px-solid-primary br-6px p-12px-16px\" $1><code>$2</code></pre>'
+                replacement: '<div class="flexColumn"><div class="bg-rgba(128,128,128,.2) dark:bg-rgba(128,128,128,.3) pos-relative w-100% p-12px mt-12px br-6px-6px-0-0 flexRow g-12px flexMiddle"><div class="fs-12px c-gray w-100% pos-absolute ta-center">$1</div><div class="ar-1/1 w-8px shadow-16px-0-orange-,-32px-0-green40 br-50% bg-red70"></div></div><pre class=\"numberedLines maxw-100% bg-rgba(128,128,128,.1) dark:bg-rgba(128,128,128,.2) br-0-0-6px-6px p-12px-16px mt-0\"><code>$2</code></pre></div>'
             },
             {
                 pattern: /`([^`]+)`/gm,
-                replacement: '<code class="bg-rgba(128,128,128,.15) c-white50 fw-600 fs-12px p-2px-4px br-4px">$1</code>'
+                replacement: '<code class="bg-rgba(128,128,128,.3) c-white50 fw-600 fs-12px p-2px-4px br-4px">$1</code>'
             },
             {pattern: /\n---\n/gm, replacement: "<hr>"},
             {pattern: /<\/li>\n\n/gm, replacement: "</li><br>"},
@@ -402,6 +402,7 @@ const pb_evaluateSyntax = async (string, element) => {
             }
             const result = await new Function(`return (async () => { ${evaluatedCode} })()`)();
             if (result !== undefined) {
+                // return String("<!-- code='" + await pb_encrypt(code) + "'-->" + result);
                 return String(result);
             } else {
                 return "";
@@ -443,6 +444,7 @@ const pb_includeHtmlToAnElement = async (element, path, attributes) => {
         if (this.readyState === 4) {
             if (this.status === 200) {
                 let response = this.response.replaceAll('\t', '  ')
+                let last_response = response
                 
                 for (let i = 0; i < attributes.length; i++) {
                     let attribute = attributes[i]
@@ -542,6 +544,50 @@ const pb_includeHtmlToAnElement = async (element, path, attributes) => {
                     response = response.replace(/\${random\((\d+(\.\d+)?),(\d+(\.\d+)?)\)}/g, (match, min, _, max) => {
                         return pb_randomNumber(parseFloat(min), parseFloat(max)).toString();
                     });
+
+                    const regexPB = /\${pixelbite\.(.*?)}/g;
+
+                    response = response.replace(regexPB, (match, nestedVariablePath) => {
+                        const keys = nestedVariablePath.split('.');
+                        let value = pixelbite;
+
+                        try {
+                            for (let key of keys) {
+                                if (key.includes('[')) {
+                                    let [arrayName, index] = key.split(/\[|\]/).filter(Boolean);
+
+                                    if (value.hasOwnProperty(arrayName) && Array.isArray(value[arrayName])) {
+                                        value = value[arrayName][parseInt(index, 10)];
+                                    } else {
+                                        return match;
+                                    }
+                                } else {
+                                    // Handle regular object property access
+                                    if (value.hasOwnProperty(key)) {
+                                        value = value[key];
+                                    } else if (key === 'length' && Array.isArray(value)) {
+                                        value = value.length;
+                                    } else {
+                                        return match;
+                                    }
+                                }
+                            }
+                        } catch (error) {
+                            console.error('Pixelbite: ' + error);
+                            return match;
+                        }
+
+                        if (value === undefined || value === null) {
+                            return match;
+                        }
+
+                        if (typeof value === 'object') {
+                            return JSON.stringify(value);
+                        }
+
+                        return value;
+                    });
+
 
                     const regex = /\${variables\.(.*?)}/g;
                     response = response.replace(regex, (match, nestedVariablePath) => {
@@ -1163,6 +1209,7 @@ function pb_randomFromArray(array) {
 }
 
 window.onload = () => {
+    pb_loadingLatchTimeout()
     console.log(
         "%cThank you for using PixelbiteCSS :) (version " + pixelbite.version + ")",
         "font-size:18px;font-weight:bold"
@@ -1198,7 +1245,12 @@ const refresh = async (elements) => {
     await pb_classGenerator(elements)
 }
 
+let pb_loadingLatch = true
+
 const pb_classGenerator = async (elements) => {
+    if (!pb_loadingLatch) {
+        pb_loadingLatch = true
+    }
     pb_alocatedPath()
     pb_checkLoremIpsum()
     if (pixelbite.variables.primary !== document.documentElement.style.getPropertyValue('--primary-color')) {
@@ -1236,8 +1288,17 @@ const pb_classGenerator = async (elements) => {
         pb_aliasClassReplace(document.body)
         element.classList.forEach((element_class) => {
             for (let j = 0; j < class_library.length; j++) {
+                element_class = element_class.replaceAll('--', '-_')
+                const pattern = /\[(.*?)\]/g
+                element_class = element_class.replace(pattern, (match, p1) => {
+                    const modifiedContent = p1.replace(/-/g, '_')
+                    return `[${modifiedContent}]`;
+                })
                 let element_class_split = element_class.split('-');
                 let splitToString = element_class_split[1] + ''
+                for (let k = 0; k < element_class_split.length; k++) {
+                    element_class_split[k] = element_class_split[k].replace('_','-')
+                }
                 if (splitToString.includes('_')) {
                     element_class_split[1] = splitToString.replace('_', '-')
                 }
@@ -1418,7 +1479,13 @@ const pb_classGenerator = async (elements) => {
         pb_updateDropdowns()
         pb_hrefAnyElement()
         pb_generateFloatInput(element)
+        pb_loadingLatch = false
     }
+}
+
+const pb_loadingLatchTimeout = async () => {
+    console.log(pb_loadingLatch)
+    await pb_sleep(1000)
 }
 
 const pb_tagClassReplace = (element) => {
