@@ -25,7 +25,7 @@ https://cdn.jsdelivr.net/gh/pixelbite-css/dist/v/{version}/pixelbite.js
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/pixelbite-css/dist/v/{version}/pixelbite.css">
 </head>
 <body>
-    <component path="${variables.mainPage}"></component>
+    <h1>Hello wolrd</h1>
     <script src="https://cdn.jsdelivr.net/gh/pixelbite-css/dist/v/{version}/pixelbite.js"></script>
 </body>
 </html>
