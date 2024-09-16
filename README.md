@@ -8,12 +8,31 @@
 
 #### Install
  - Use with your project by **CDN**
+   - CSS
 ```
-// CSS
 https://cdn.jsdelivr.net/gh/pixelbite-css/dist/v/{version}/pixelbite.css
-// JS
+```
+   - JS
+```
 https://cdn.jsdelivr.net/gh/pixelbite-css/dist/v/{version}/pixelbite.js
 ```
+ - Example in code:
+```
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hello world</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/pixelbite-css/dist/v/{version}/pixelbite.css">
+</head>
+<body>
+    <component path="${variables.mainPage}"></component>
+    <script src="https://cdn.jsdelivr.net/gh/pixelbite-css/dist/v/{version}/pixelbite.js"></script>
+</body>
+</html>
+```
+
 #### Legal actions
  - Please, before using or cloning this project, read our [License Terms](https://github.com/Pixelbite-CSS/dist/blob/main/LICENSE).
  - **By cloning, you are agreeing to the license and its intent.**
