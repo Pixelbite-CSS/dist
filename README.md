@@ -8,11 +8,9 @@
 
 #### Install
  - Use with your project by **CDN**
-   - CSS
 ```
 https://cdn.jsdelivr.net/gh/pixelbite-css/dist/v/{version}/pixelbite.css
 ```
-    - JS
 ```
 https://cdn.jsdelivr.net/gh/pixelbite-css/dist/v/{version}/pixelbite.js
 ```
