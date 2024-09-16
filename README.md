@@ -12,7 +12,7 @@
 ```
 https://cdn.jsdelivr.net/gh/pixelbite-css/dist/v/{version}/pixelbite.css
 ```
-   - JS
+    - JS
 ```
 https://cdn.jsdelivr.net/gh/pixelbite-css/dist/v/{version}/pixelbite.js
 ```
