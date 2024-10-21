@@ -396,13 +396,12 @@ const pb_evaluateSyntax = async (string, element) => {
 
     let pb_codeEvaluationString = await asyncReplace(string, /\${`([\s\S]*?)`}/g, async (match, code) => {
         try {
-            let evaluatedCode = code;
-            if (code.startsWith('return ')) {
-                evaluatedCode = `(() => { ${code} })()`;
+            let evaluatedCode = code.replace(/\$\{.*?\}/g, 'undefined');
+            if (evaluatedCode.startsWith('return ')) {
+                evaluatedCode = `(() => { ${evaluatedCode} })()`;
             }
             const result = await new Function(`return (async () => { ${evaluatedCode} })()`)();
             if (result !== undefined) {
-                // return String("<!-- code='" + await pb_encrypt(code) + "'-->" + result);
                 return String(result);
             } else {
                 return "";
@@ -798,14 +797,14 @@ window.addEventListener("load", async () => {
 const pb_styleEval = async () => {
     if (pixelbite.styles) {
         for (let i = 0; i < pixelbite.styles.length; i++) {
-            if (pixelbite.styles[i].includes('.conf')) {
+            // if (pixelbite.styles[i].includes('.conf')) {
                 let head = document.head
                 let link = document.createElement("link")
                 link.type = "text/css"
                 link.rel = "stylesheet"
                 link.href = pixelbite.styles[i]
                 head.appendChild(link)
-            }
+            // }
         }
     }
 }
@@ -813,13 +812,23 @@ const pb_styleEval = async () => {
 const pb_scriptEval = async () => {
     if (pixelbite.scripts) {
         for (let i = 0; i < pixelbite.scripts.length; i++) {
-            let script = document.createElement("script")
-            script.type = "text/javascript"
-            script.src = pixelbite.scripts[i]
-            document.getElementsByTagName("head")[0].appendChild(script)
+            await new Promise((resolve, reject) => {
+                let script = document.createElement("script");
+                script.type = "text/javascript";
+                script.src = pixelbite.scripts[i];
+                script.onload = () => {
+                    resolve();
+                };
+                script.onerror = () => {
+                    console.error(`Pixelbite: Failed to load script: ${pixelbite.scripts[i]}`);
+                    reject();
+                };
+                document.getElementsByTagName("head")[0].appendChild(script);
+            });
         }
     }
 }
+
 
 const pb_scrollToID = async () => {
     let str = window.location.toString()
@@ -951,6 +960,7 @@ const pb_configEval = async (url) => {
                                 }
                             }
                             value = JSON.stringify(evalValue)
+                            value = value.replaceAll('[','').replaceAll(']','')
                             eval('object.values.' + variable + ' = ' + value)
                             eval('pixelbite.' + variable + '.push(' + value + ')')
                         } else {
@@ -1016,7 +1026,7 @@ const pb_configEval = async (url) => {
         let configs = object.values.configs
         if (configs) {
             for (let i = 0; i < configs.length; i++) {
-                pb_configEval(configs[i])                
+                pb_configEval(configs)                
             }
         }
 
@@ -1181,6 +1191,23 @@ const pb_checkLoremIpsum = () => {
     }
 }
 
+const pb_loremIpsum = (min, max) => {
+    if (!min && !max) {
+        min = 1
+        max = 20
+    }
+    let result = ""
+    let length = pb_randomNumber(min, max)
+    for (let i = 0; i < length; i++) {
+        result += pb_randomFromArray(pb_getObjectValues(pixelbite.loremIpsum))[1] + " "
+    }
+    return result.trim()
+}
+
+const pb_capitalizeFirstLetter = (string) => {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
 const pb_sleep = (ms) => {
     return new Promise(resolve => setTimeout(resolve, ms))
 }
@@ -1286,195 +1313,209 @@ const pb_classGenerator = async (elements) => {
         pb_tagClassReplace(document.body)
         pb_aliasClassReplace(element)
         pb_aliasClassReplace(document.body)
-        element.classList.forEach((element_class) => {
-            for (let j = 0; j < class_library.length; j++) {
-                element_class = element_class.replaceAll('--', '-_')
-                const pattern = /\[(.*?)\]/g
-                element_class = element_class.replace(pattern, (match, p1) => {
-                    const modifiedContent = p1.replace(/-/g, '_')
-                    return `[${modifiedContent}]`;
-                })
-                let element_class_split = element_class.split('-');
-                let splitToString = element_class_split[1] + ''
-                for (let k = 0; k < element_class_split.length; k++) {
-                    element_class_split[k] = element_class_split[k].replace('_','-')
-                }
-                if (splitToString.includes('_')) {
-                    element_class_split[1] = splitToString.replace('_', '-')
-                }
-                if (darkmode === '1') {
-                    if (element_class_split[0].includes('dark:')) {
-                        element_class_split[0] = element_class_split[0].replace('dark:', '')
+        if (element.classList) {
+            element.classList.forEach((element_class) => {
+                for (let j = 0; j < class_library.length; j++) {
+                    element_class = element_class.replaceAll('--', '-_')
+                    const pattern = /\[(.*?)\]/g
+                    element_class = element_class.replace(pattern, (match, p1) => {
+                        const modifiedContent = p1.replace(/-/g, '_')
+                        return `[${modifiedContent}]`;
+                    })
+                    let element_class_split = element_class.split('-');
+                    let splitToString = element_class_split[1] + ''
+                    for (let k = 0; k < element_class_split.length; k++) {
+                        element_class_split[k] = element_class_split[k].replace('_','-')
                     }
-                }
-                if (element === pb_cursorElement) {
-                    if (element_class_split[0].includes('hover:') && !element_class_split[0].includes('dark:')) {
-                        element_class_split[0] = element_class_split[0].replace('hover:', '')
+                    if (splitToString.includes('_')) {
+                        element_class_split[1] = splitToString.replace('_', '-')
                     }
-                }
-                if (element_class_split[0].includes('theme[')) {
-                    if (element_class_split[0].includes(thememode)) {
-                        element_class_split[0] = element_class_split[0].replace(thememode, '')
+                    if (darkmode === '1') {
+                        if (element_class_split[0].includes('dark:')) {
+                            element_class_split[0] = element_class_split[0].replace('dark:', '')
+                        }
                     }
-                }
-                if (element_class_split[0].includes('foreach:')) {
-                    element_class_split[0] = element_class_split[0].replace('foreach:', '')
-                    let elementsOfElement = element.getElementsByTagName('*')
-                    for (let k = 0; k < elementsOfElement.length; k++) {
-                        elementsOfElement[k].classList.add(element_class)
+                    if (element === pb_cursorElement) {
+                        if (element_class_split[0].includes('hover:') && !element_class_split[0].includes('dark:')) {
+                            element_class_split[0] = element_class_split[0].replace('hover:', '')
+                        }
                     }
-                }
-                if (element_class_split[0].includes('max') && element_class_split[0].includes(':')) {
-                    let size = element_class_split[0].split(':')[0].replace('max', '').replace(':', '').replace('px', '')
-                    if (size <= window.innerWidth) {
-                        element_class_split[0] = element_class_split[0].split(':')[1]
+    
+                    // here
+                    let currentElement = pb_cursorElement;
+                    while (currentElement) {
+                        if (currentElement === element) {
+                            if (element_class_split[0].includes('hover:') && !element_class_split[0].includes('dark:')) {
+                                element_class_split[0] = element_class_split[0].replace('hover:', '')
+                            }
+                        }
+                      currentElement = currentElement.parentElement;
                     }
-                }
-                if (element_class_split[0].includes('min') && element_class_split[0].includes(':')) {
-                    let size = element_class_split[0].split(':')[0].replace('min', '').replace(':', '').replace('px', '')
-                    if (size >= window.innerWidth) {
-                        element_class_split[0] = element_class_split[0].split(':')[1]
+    
+                    if (element_class_split[0].includes('theme[')) {
+                        if (element_class_split[0].includes(thememode)) {
+                            element_class_split[0] = element_class_split[0].replace(thememode, '')
+                        }
                     }
-                }
-
-                // OLD CODE - new one was updated to be more easy and fast
-                //
-                // if (element_class_split[0] === class_library[j][0]) {
-                //     if (class_library[j][2]) {
-                //         if (element.style.cssText.includes(class_library[j][1])) {
-                //             if (element.style.cssText.includes(class_library[j][2])) {
-                //                 console.log(class_library[j][1] + " : " + class_library[j][2])
-                //                 let target = class_library[j][2];  // e.g., "scale"
-                //                 let newValue = pb_classSplitToString(element_class_split, 1);  // e.g., "800px"
-                //                 let property = class_library[j][1];  // e.g., "transform"
-                                
-                //                 const regex = new RegExp(`(${property}:\\s*[^;]*)(;)`, 'g');
-                                
-                //                 // Update the element's style.cssText
-                //                 element.style.cssText = element.style.cssText.replace(regex, (match, p1, p2) => {
-                //                     return `${p1} ${target}(${newValue})${p2}`;
-                //                 });
-                //             } else {
-                //                 let target = class_library[j][1]
-                //                 let appendValue = class_library[j][2] + "(" + pb_classSplitToString(element_class_split, 1) + ")"
-                //                 const regex = new RegExp(`(${target}:\\s*\\w+\\([^)]*\\))`)
-                //                 element.style.cssText.replace(regex, `$1 ${appendValue}`)
-                //             }
-                //             console.log(element.style.cssText)
-                //         } else {
-                //             element.style.cssText += class_library[j][1] + ': ' + class_library[j][2] + '(' + pb_classSplitToString(element_class_split, 1) + ');'
-                //         }
-                //     } else {
-                //         element.style.cssText += class_library[j][1] + ': ' + pb_classSplitToString(element_class_split, 1) + ';'
-                //     }
-                // } else {
-                //     element.style.cssText += element_class_split[0].replaceAll('_','-') + ': ' + pb_classSplitToString(element_class_split, 1) + ';'
-                // }
-
-                if (element_class_split[0] === class_library[j][0]) {
-                    if (class_library[j][2]) {
-                        let target = class_library[j][2]
-                        let newValue = pb_classSplitToString(element_class_split, 1)
-                        let property = class_library[j][1]
-                        if (element.style.cssText.includes(property)) {
-                            const regex = new RegExp(`(${property}:\\s*[^;]*)(;)`, 'g')
-                            element.style.cssText = element.style.cssText.replace(regex, (match, p1, p2) => {
-                                const existingTransforms = p1.split(' ').filter(transform => transform.includes('('))
-                                const newTransforms = existingTransforms.filter(transform => !transform.startsWith(target))
-                                newTransforms.push(`${target}(${newValue})`)
-                                return `${property}: ${newTransforms.join(' ')};`
-                            });
+                    if (element_class_split[0].includes('foreach:')) {
+                        element_class_split[0] = element_class_split[0].replace('foreach:', '')
+                        let elementsOfElement = element.getElementsByTagName('*')
+                        for (let k = 0; k < elementsOfElement.length; k++) {
+                            elementsOfElement[k].classList.add(element_class)
+                        }
+                    }
+                    if (element_class_split[0].includes('max') && element_class_split[0].includes(':')) {
+                        let size = element_class_split[0].split(':')[0].replace('max', '').replace(':', '').replace('px', '')
+                        if (size <= window.innerWidth) {
+                            element_class_split[0] = element_class_split[0].split(':')[1]
+                        }
+                    }
+                    if (element_class_split[0].includes('min') && element_class_split[0].includes(':')) {
+                        let size = element_class_split[0].split(':')[0].replace('min', '').replace(':', '').replace('px', '')
+                        if (size >= window.innerWidth) {
+                            element_class_split[0] = element_class_split[0].split(':')[1]
+                        }
+                    }
+    
+                    // OLD CODE - new one was updated to be more easy and fast
+                    //
+                    // if (element_class_split[0] === class_library[j][0]) {
+                    //     if (class_library[j][2]) {
+                    //         if (element.style.cssText.includes(class_library[j][1])) {
+                    //             if (element.style.cssText.includes(class_library[j][2])) {
+                    //                 console.log(class_library[j][1] + " : " + class_library[j][2])
+                    //                 let target = class_library[j][2];  // e.g., "scale"
+                    //                 let newValue = pb_classSplitToString(element_class_split, 1);  // e.g., "800px"
+                    //                 let property = class_library[j][1];  // e.g., "transform"
+                                    
+                    //                 const regex = new RegExp(`(${property}:\\s*[^;]*)(;)`, 'g');
+                                    
+                    //                 // Update the element's style.cssText
+                    //                 element.style.cssText = element.style.cssText.replace(regex, (match, p1, p2) => {
+                    //                     return `${p1} ${target}(${newValue})${p2}`;
+                    //                 });
+                    //             } else {
+                    //                 let target = class_library[j][1]
+                    //                 let appendValue = class_library[j][2] + "(" + pb_classSplitToString(element_class_split, 1) + ")"
+                    //                 const regex = new RegExp(`(${target}:\\s*\\w+\\([^)]*\\))`)
+                    //                 element.style.cssText.replace(regex, `$1 ${appendValue}`)
+                    //             }
+                    //             console.log(element.style.cssText)
+                    //         } else {
+                    //             element.style.cssText += class_library[j][1] + ': ' + class_library[j][2] + '(' + pb_classSplitToString(element_class_split, 1) + ');'
+                    //         }
+                    //     } else {
+                    //         element.style.cssText += class_library[j][1] + ': ' + pb_classSplitToString(element_class_split, 1) + ';'
+                    //     }
+                    // } else {
+                    //     element.style.cssText += element_class_split[0].replaceAll('_','-') + ': ' + pb_classSplitToString(element_class_split, 1) + ';'
+                    // }
+    
+                    if (element_class_split[0] === class_library[j][0]) {
+                        if (class_library[j][2]) {
+                            let target = class_library[j][2]
+                            let newValue = pb_classSplitToString(element_class_split, 1)
+                            let property = class_library[j][1]
+                            if (element.style.cssText.includes(property)) {
+                                const regex = new RegExp(`(${property}:\\s*[^;]*)(;)`, 'g')
+                                element.style.cssText = element.style.cssText.replace(regex, (match, p1, p2) => {
+                                    const existingTransforms = p1.split(' ').filter(transform => transform.includes('('))
+                                    const newTransforms = existingTransforms.filter(transform => !transform.startsWith(target))
+                                    newTransforms.push(`${target}(${newValue})`)
+                                    return `${property}: ${newTransforms.join(' ')};`
+                                });
+                            } else {
+                                element.style.cssText += `${property}: ${target}(${newValue});`;
+                            }
                         } else {
-                            element.style.cssText += `${property}: ${target}(${newValue});`;
+                            element.style.cssText += `${class_library[j][1]}: ${pb_classSplitToString(element_class_split, 1)};`
                         }
                     } else {
-                        element.style.cssText += `${class_library[j][1]}: ${pb_classSplitToString(element_class_split, 1)};`
+                        element.style.cssText += `${element_class_split[0].replaceAll('_', '-')} : ${pb_classSplitToString(element_class_split, 1)};`
                     }
-                } else {
-                    element.style.cssText += `${element_class_split[0].replaceAll('_', '-')} : ${pb_classSplitToString(element_class_split, 1)};`
-                }
-                
-                if (element_class_split[0] === "gradient") {
-                    if (!element_class_split[3]) {
-                        element_class_split[3] = 0
+                    
+                    if (element_class_split[0] === "gradient") {
+                        if (!element_class_split[3]) {
+                            element_class_split[3] = 0
+                        }
+                        let col1 = pb_variableCheck(element_class_split[1])
+                        let col2 = pb_variableCheck(element_class_split[2])
+                        let deg = pb_variableCheck(element_class_split[3])
+                        element.style.cssText += '' +
+                        'background: ' + col1 +
+                        'background: -moz-linear-gradient(' + deg + ', ' + col1 + ' 0%, ' + col2 + ' 100%);' +
+                        'background: -webkit-linear-gradient(' + deg + ', ' + col1 + ' 0%, ' + col2 + ' 100%);' +
+                        'background: linear-gradient(' + deg + ', ' + col1 + ' 0%, ' + col2 + ' 100%);' +
+                        'filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="' + col1 + '",endColorstr="' + col2 + '",GradientType=1);'
                     }
-                    let col1 = pb_variableCheck(element_class_split[1])
-                    let col2 = pb_variableCheck(element_class_split[2])
-                    let deg = pb_variableCheck(element_class_split[3])
-                    element.style.cssText += '' +
-                    'background: ' + col1 +
-                    'background: -moz-linear-gradient(' + deg + ', ' + col1 + ' 0%, ' + col2 + ' 100%);' +
-                    'background: -webkit-linear-gradient(' + deg + ', ' + col1 + ' 0%, ' + col2 + ' 100%);' +
-                    'background: linear-gradient(' + deg + ', ' + col1 + ' 0%, ' + col2 + ' 100%);' +
-                    'filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="' + col1 + '",endColorstr="' + col2 + '",GradientType=1);'
-                }
-                if (element_class_split[0] === "gradient[radial]") {
-                    let colFirst = element_class_split[1]
-                    let colLast = element_class_split[element_class_split.length]
-                    let colAll = ''
-                    for (let i = 1; i < element_class_split.length; i++) {
-                        if (i === element_class_split.length - 1) {
-                            colAll += element_class_split[i]
+                    if (element_class_split[0] === "gradient[radial]") {
+                        let colFirst = element_class_split[1]
+                        let colLast = element_class_split[element_class_split.length]
+                        let colAll = ''
+                        for (let i = 1; i < element_class_split.length; i++) {
+                            if (i === element_class_split.length - 1) {
+                                colAll += element_class_split[i]
+                            }
+                            else if (i%2==1) {
+                                colAll += element_class_split[i] + ' '
+                            } else {
+                                colAll += element_class_split[i] + ', '
+                            }
                         }
-                        else if (i%2==1) {
-                            colAll += element_class_split[i] + ' '
-                        } else {
-                            colAll += element_class_split[i] + ', '
-                        }
+                        element.style.cssText += '' +
+                        'background: ' + colFirst +
+                        'background: -moz-radial-gradient(circle, ' + colAll + ');' +
+                        'background: -webkit-radial-gradient(circle, ' + colAll + ');' +
+                        'background: radial-gradient(circle, ' + colAll + ');' +
+                        'filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="' + colFirst + '",endColorstr="' + colLast + '",GradientType=1);'
                     }
-                    element.style.cssText += '' +
-                    'background: ' + colFirst +
-                    'background: -moz-radial-gradient(circle, ' + colAll + ');' +
-                    'background: -webkit-radial-gradient(circle, ' + colAll + ');' +
-                    'background: radial-gradient(circle, ' + colAll + ');' +
-                    'filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="' + colFirst + '",endColorstr="' + colLast + '",GradientType=1);'
-                }
-                if (element_class_split[0].includes("gradient[") && element_class_split[0].includes("deg]")) {
-                    let deg = element_class_split[0].replace('gradient[','').replace(']','')
-                    let colFirst = element_class_split[1]
-                    let colLast = element_class_split[element_class_split.length]
-                    let colAll = ''
-                    for (let i = 1; i < element_class_split.length; i++) {
-                        if (i === element_class_split.length - 1) {
-                            colAll += element_class_split[i]
+                    if (element_class_split[0].includes("gradient[") && element_class_split[0].includes("deg]")) {
+                        let deg = element_class_split[0].replace('gradient[','').replace(']','')
+                        let colFirst = element_class_split[1]
+                        let colLast = element_class_split[element_class_split.length]
+                        let colAll = ''
+                        for (let i = 1; i < element_class_split.length; i++) {
+                            if (i === element_class_split.length - 1) {
+                                colAll += element_class_split[i]
+                            }
+                            else if (i%2==1) {
+                                colAll += element_class_split[i] + ' '
+                            } else {
+                                colAll += element_class_split[i] + ', '
+                            }
                         }
-                        else if (i%2==1) {
-                            colAll += element_class_split[i] + ' '
-                        } else {
-                            colAll += element_class_split[i] + ', '
-                        }
+                        element.style.cssText += '' +
+                        'background: ' + colFirst +
+                        'background: -moz-linear-gradient(' + deg + ', ' + colAll + ');' +
+                        'background: -webkit-linear-gradient(' + deg + ', ' + colAll + ');' +
+                        'background: linear-gradient(' + deg + ', ' + colAll + ');' +
+                        'filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="' + colFirst + '",endColorstr="' + colLast + '",GradientType=1);'
                     }
-                    element.style.cssText += '' +
-                    'background: ' + colFirst +
-                    'background: -moz-linear-gradient(' + deg + ', ' + colAll + ');' +
-                    'background: -webkit-linear-gradient(' + deg + ', ' + colAll + ');' +
-                    'background: linear-gradient(' + deg + ', ' + colAll + ');' +
-                    'filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="' + colFirst + '",endColorstr="' + colLast + '",GradientType=1);'
-                }
-                if (element_class_split[0].includes("gradient[")) {
-                    let attributes = element_class_split[0].replace('gradient[','').replace(']','').replaceAll(',', ' ')
-                    let colFirst = element_class_split[1]
-                    let colLast = element_class_split[element_class_split.length]
-                    let colAll = ''
-                    for (let i = 1; i < element_class_split.length; i++) {
-                        if (i === element_class_split.length - 1) {
-                            colAll += element_class_split[i]
+                    if (element_class_split[0].includes("gradient[")) {
+                        let attributes = element_class_split[0].replace('gradient[','').replace(']','').replaceAll(',', ' ')
+                        let colFirst = element_class_split[1]
+                        let colLast = element_class_split[element_class_split.length]
+                        let colAll = ''
+                        for (let i = 1; i < element_class_split.length; i++) {
+                            if (i === element_class_split.length - 1) {
+                                colAll += element_class_split[i]
+                            }
+                            else if (i%2==1) {
+                                colAll += element_class_split[i] + ' '
+                            } else {
+                                colAll += element_class_split[i] + ', '
+                            }
                         }
-                        else if (i%2==1) {
-                            colAll += element_class_split[i] + ' '
-                        } else {
-                            colAll += element_class_split[i] + ', '
-                        }
+                        element.style.cssText += '' +
+                        'background: ' + colFirst +
+                        'background: -moz-radial-gradient(' + attributes + ', ' + colAll + ');' +
+                        'background: -webkit-radial-gradient(' + attributes + ', ' + colAll + ');' +
+                        'background: radial-gradient(at ' + attributes + ', ' + colAll + ');' +
+                        'filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="' + colFirst + '",endColorstr="' + colLast + '",GradientType=1);'
                     }
-                    element.style.cssText += '' +
-                    'background: ' + colFirst +
-                    'background: -moz-radial-gradient(' + attributes + ', ' + colAll + ');' +
-                    'background: -webkit-radial-gradient(' + attributes + ', ' + colAll + ');' +
-                    'background: radial-gradient(at ' + attributes + ', ' + colAll + ');' +
-                    'filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="' + colFirst + '",endColorstr="' + colLast + '",GradientType=1);'
                 }
-            }
-        })
+            })
+        }
         pb_updateSearchbars()
         pb_updateDropdowns()
         pb_hrefAnyElement()
@@ -1484,7 +1525,7 @@ const pb_classGenerator = async (elements) => {
 }
 
 const pb_loadingLatchTimeout = async () => {
-    console.log(pb_loadingLatch)
+    // console.log(pb_loadingLatch)
     await pb_sleep(1000)
 }
 
@@ -1538,15 +1579,17 @@ const pb_generateFloatInput = (element) => {
 
 const pb_aliasClassReplace = (element) => {
     let x = element.classList
-    for (let i = 0; i < x.length; i++) {
-        let aliasClasses = pb_getObjectValues(pixelbite.aliases)
-        for (let j = 0; j < aliasClasses.length; j++) {
-            if (aliasClasses[j][0] === x[i]) {
-                let classSplit = aliasClasses[j][1].split(' ')
-                for (let k = 0; k < classSplit.length; k++) {
-                    let classOne = classSplit[k].replaceAll('theme&lsqb;', 'theme[')
-                    if (classOne) {
-                        element.classList.add(classOne)
+    if (x) {
+        for (let i = 0; i < x.length; i++) {
+            let aliasClasses = pb_getObjectValues(pixelbite.aliases)
+            for (let j = 0; j < aliasClasses.length; j++) {
+                if (aliasClasses[j][0] === x[i]) {
+                    let classSplit = aliasClasses[j][1].split(' ')
+                    for (let k = 0; k < classSplit.length; k++) {
+                        let classOne = classSplit[k].replaceAll('theme&lsqb;', 'theme[')
+                        if (classOne) {
+                            element.classList.add(classOne)
+                        }
                     }
                 }
             }
@@ -2055,13 +2098,30 @@ const pb_getParentElementThatHasHover = async (element) => {
     return element;
 }
 
+function findMostChildWithHoverClass(x, y) {
+    const elements = document.elementsFromPoint(x, y);
+    for (let i = 0; i < elements.length; i++) {
+        let currentElement = elements[i];
+        if (currentElement.className && currentElement.className.includes('hover:')) {
+            return currentElement;
+        }
+    }
+
+    return elements;
+}
+
 document.addEventListener('mousemove', async e => {
     try {
-        pb_cursorElement = await pb_getParentElementThatHasHover(document.elementFromPoint(e.clientX, e.clientY))
+        pb_cursorElement = findMostChildWithHoverClass(e.clientX, e.clientY)
         if (pb_cursorElement.classList !== pb_cursorElementPrevieous.classList) {
             if (pb_cursorElementLatch) {
                 pb_classGenerator([pb_cursorElementPrevieous])
                 pb_classGenerator([pb_cursorElement])
+                let pb_parentElement = pb_cursorElementPrevieous
+                while (pb_parentElement) {
+                    pb_classGenerator([pb_parentElement])
+                    pb_parentElement = pb_parentElement.parentElement
+                }
                 pb_cursorElementLatch = false
                 pb_cursorElementPrevieous = pb_cursorElement
             }
@@ -2072,18 +2132,27 @@ document.addEventListener('mousemove', async e => {
                 if (pb_cursorElement.classList !== pb_cursorElementPrevieous.classList) {
                     pb_classGenerator([pb_cursorElement]);
                 }
+                let pb_parentElement = pb_cursorElement
+                while (pb_parentElement) {
+                    pb_classGenerator([pb_parentElement])
+                    pb_parentElement = pb_parentElement.parentElement
+                }
                 pb_cursorElementPrevieous = pb_cursorElement
                 pb_cursorElementLatch = true
             }
         }
     } catch (error) {
-        console.log(error)
         // nothing to worry about
         // UPDATE: there is something to worry about
         // - the hover: doesn't work with inner elements
         // - TODO: fix it
         // UPDATE: TODO: fix failed, the function cannot select the right element since the element isn't the same
         // TODO: fix it
+        // UPDATE: tried fix again failed, the ClassUpdate supports only one class split at the time, need to change pb_CursorElement to be working with an array
+        // TODO: fix it
+        // UPDATE: FUCK IT
+        // TODO: fix it
+        // UPDATE: FIXED!!! fuck this crap... needs a rewrite
     }
 }, {passive: true})
 
