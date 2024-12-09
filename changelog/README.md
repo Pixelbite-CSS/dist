@@ -52,6 +52,7 @@
       - `cookie.expiration` - expiration for cookies in days
       - `cookie.values` - decripted hashed cookie object
   - ~~Now hashed cookies use _specific key_ for **specific machine** and **browser**~~
+      - Sometimes the hash isn't hashed properly and it's causing some unwanted errors that breaks the whole script - _might fix_
 - Added `<button>` href support
 - Added `theme[theme]:` prefix support
     - To change theme use `changeTheme(theme_name)`
