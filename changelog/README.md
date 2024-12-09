@@ -64,7 +64,7 @@
     - Added new `[general] hidden_configs`
         - Set this variable to "true" to hide all configs/themes messages
     - Added auto config fill
-        - If you are using externall configs/themes, the url will reffer to `*/config.conf` by default 
+        - If you are using external configs/themes, the url will reffer to `*/config.conf` by default 
 - Updated css
     - Added `<table>` support
 - Bugfix
