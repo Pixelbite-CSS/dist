@@ -74,3 +74,4 @@
 - TODO:
     - Add css parameter `display: inline-block` to fix issue while adding a new component
         - When adding a new component the `display` is set to `block`, which in some cases needs to be changed in parent component
+    - Need to add ${} functions work at DOM
