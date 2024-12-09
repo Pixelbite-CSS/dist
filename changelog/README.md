@@ -51,7 +51,7 @@
       - `cookie.saltkey` - password for 2nd degree encription
       - `cookie.expiration` - expiration for cookies in days
       - `cookie.values` - decripted hashed cookie object
-  - Now hashed cookies use _specific key_ for **specific machine** and **browser**
+  - ~~Now hashed cookies use _specific key_ for **specific machine** and **browser**~~
 - Added `<button>` href support
 - Added `theme[theme]:` prefix support
     - To change theme use `changeTheme(theme_name)`
@@ -70,3 +70,6 @@
     - Components attributes are now case-insensitive
     - Class generator inside of the main loop was fixed
       - Faster load times and faster component load
+- TODO:
+    - Add css parameter `display: inline-block` to fix issue while adding a new component
+        - When adding a new component the `display` is set to `block`, which in some cases needs to be changed in parent component
